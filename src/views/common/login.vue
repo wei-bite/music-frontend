@@ -3,55 +3,15 @@ import { User, Lock} from '@element-plus/icons-vue';
 </script>
 <template>
   <el-row class="login-page">
+    <div class="bear"></div>
     <el-col :span="10" :offset="7" class="form">
       <div class="card">
         <!-- 左侧图片区 -->
         <div class="card__left bg"></div>
         <!-- 右侧表单区 -->
         <div class="card__right">
-            <!-- 注册相关 -->
-          <el-form v-if="isRegister">
-            <el-form-item>
-              <h1>注册</h1>
-            </el-form-item>
-            <el-form-item>
-              <el-input
-                clearable
-                placeholder="请输入用户名"
-                :prefix-icon="User"
-              />
-            </el-form-item>
-            <el-form-item>
-              <el-input
-                clearable
-                :prefix-icon="Lock"
-                type="password"
-                show-password
-                placeholder="请输入密码"
-              />
-            </el-form-item>
-            <el-form-item>
-              <el-input
-                :prefix-icon="Lock"
-                show-password
-                type="password"
-                placeholder="请再次输入密码"
-              />
-            </el-form-item>
-            <el-form-item>
-              <el-button class="button" type="primary">
-                注册
-              </el-button>
-            </el-form-item>
-            <el-form-item class="flex">
-              <el-link type="info">
-                ← 返回
-              </el-link>
-            </el-form-item>
-          </el-form>
-
           <!-- 登录相关 -->
-          <el-form v-else>
+          <el-form>
             <el-form-item>
               <h1>登录</h1>
             </el-form-item>
@@ -83,9 +43,6 @@ import { User, Lock} from '@element-plus/icons-vue';
               </el-button>
             </el-form-item>
             <el-form-item class="flex">
-              <el-link type="info">
-                注册 →
-              </el-link>
             </el-form-item>
           </el-form>
         </div>
@@ -97,7 +54,36 @@ import { User, Lock} from '@element-plus/icons-vue';
 <style lang="scss" scoped>
 .login-page {
   height: 100vh;
-  background: url('@/assets/pexels-bg.jpg') no-repeat center / cover;
+  background: url('@/assets/pexels-pixabay.jpg') no-repeat center / cover;
+
+  .bear {
+    position: absolute;
+    bottom: 80px;
+    width: 200px;
+    height: 100px;
+    background: url('@/assets/bear.png') no-repeat;
+    animation: bear .4s steps(8) infinite, move 3s forwards;
+  }
+
+  @keyframes bear {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: -1600px 0;
+    }
+  }
+        
+  @keyframes move {
+    0% {
+        left: 0;
+    }
+    100% {
+        left: 50%;
+        /* margin-left: -100px; */
+        transform: translateX(-50%);
+    }
+  }
 
   .form {
     display: flex;
@@ -111,23 +97,25 @@ import { User, Lock} from '@element-plus/icons-vue';
     min-height: 50vh;
     max-height: 70vh;
     background-color: #fff;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    box-shadow: 0px 0px 50px 0px rgba(0,0,0,0.1),
+    0px 0px 48px -3px rgba(0,0,0,0.1),
+    0px 10px 15px -3px rgba(0,0,0,0.1);
+    border-radius: 2rem;
     display: flex;
     overflow: hidden;
   }
 
   .card__left {
     flex: 1;
-    background: url('@/assets/logo.png') no-repeat 100% 0% / 240px auto,
-    url('@/assets/pexels-bg2.jpg') no-repeat center / cover;
+    background: url('@/assets/file.jpeg') no-repeat center / cover;
   }
 
   .card__right {
     flex: 1;
-    padding: 40px;
+    padding: 80px 40px 20px;
     display: flex;
     flex-direction: column;
+    background: url('@/assets/logo.png') no-repeat 100% 0% / 120px auto;
   }
 
   h1 {

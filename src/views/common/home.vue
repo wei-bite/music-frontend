@@ -19,7 +19,7 @@ import {
 } from '@element-plus/icons-vue'  
 
 // const router = useRouter()
-const role = ref(1) // 示例：0=管理员, 1=老师, 2=学生
+const role = ref(0) // 示例：0=管理员, 1=老师, 2=学生
 const username = ref('admin')
 
 // const handleLogout = () => {

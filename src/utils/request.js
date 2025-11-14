@@ -3,11 +3,11 @@ import { useUserStore } from '@/stores'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 
-const baseURL = ''
+// const baseURL = 'http://localhost:8080'
 
 const instance = axios.create({
-  baseURL,
-  timeout: 10000
+  // baseURL,
+  timeout: 10000,
 })
 
 // 请求拦截器
@@ -37,7 +37,7 @@ instance.interceptors.request.use(
 // 响应拦截器
 instance.interceptors.response.use(
   (res) => {
-    if (res.data.code === 0) {
+    if (res.data.code === 200) {
       return res.data
     }
     ElMessage.error(res.data.message || '服务异常')
@@ -64,5 +64,3 @@ instance.interceptors.response.use(
 )
 
 export default instance
-// 导出基地址
-export { baseURL }

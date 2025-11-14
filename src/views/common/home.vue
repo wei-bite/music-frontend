@@ -18,12 +18,12 @@ import {
   DataLine
 } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus';
+import { useUserStore } from '@/stores';
 
-// const router = useRouter()
-const role = ref(0) // 示例：0=管理员, 1=老师, 2=学生
-const username = ref('admin')
 
 const router = useRouter()
+const userStore = useUserStore()
+
 const handleCommand = async (key) => {
   console.log(key);
   
@@ -40,7 +40,7 @@ const handleCommand = async (key) => {
   )
 
   // 退出操作--> 清除本地数据 （Token + user信息）
-    // userStore.removeToken()
+    userStore.removeToken()
     // userStore.setUser({})
     router.push('/login')
   } else {
@@ -67,7 +67,7 @@ const handleCommand = async (key) => {
           router
         >
           <!-- 管理员菜单 -->
-          <template v-if="role === 0">
+          <template v-if="userStore.role === 'admin'">
             <el-sub-menu index="/user">
               <template #title>
                 <el-icon><User /></el-icon>
@@ -147,7 +147,7 @@ const handleCommand = async (key) => {
           </template>
 
           <!-- 老师菜单 -->
-          <template v-if="role === 1">
+          <template v-if="userStore.role === 'teacher'">
             <el-menu-item index="/schedule/teacher">
               <el-icon><Calendar /></el-icon>
               <span>我的课表</span>
@@ -186,7 +186,7 @@ const handleCommand = async (key) => {
           </template>
 
           <!-- 学生菜单 -->
-          <template v-if="role === 2">
+          <template v-if="userStore.role === 'student'">
             <el-menu-item index="/schedule/student">
               <el-icon><Calendar /></el-icon>
               <span>我的课表</span>
@@ -248,14 +248,14 @@ const handleCommand = async (key) => {
       <el-container class="content">
         <el-header>
           <!-- 左边文字区域 -->
-          <div>琴行管理系统，欢迎您：<strong>{{ username }}</strong></div>
+          <div>琴行管理系统，欢迎您：<strong>{{ userStore.username }}</strong></div>
           <!-- 右边区域dropdown下拉菜单 -->
            <el-dropdown placement="bottom-end" @command="handleCommand">
               <span class="el-dropdown__box">
                 <!-- 用户头像 -->
                 <el-avatar src="" />
                 
-                <span style="margin: 0 5px;">name</span>
+                <span style="margin: 0 5px;">{{userStore.username}}</span>
                 <!-- 小图标 -->
                 <el-icon><CaretBottom /></el-icon>
               </span>

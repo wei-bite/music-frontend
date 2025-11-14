@@ -1,4 +1,5 @@
 
+import { useUserStore } from '@/stores'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -29,7 +30,6 @@ const router = createRouter({
         { path: '/salary', component: () => import('@/views/teacher/salary-my.vue') },
         { path: '/leave/approve', component: () => import('@/views/teacher/leave-approve.vue') },
 
-
         //学生页面路由
         { path: '/leave/apply', component: () => import('@/views/student/leave-approve.vue') },
         { path: '/schedule/student', component: () => import('@/views/student/schedule-my.vue') },
@@ -49,12 +49,12 @@ const router = createRouter({
 })
 
 // 导航守卫
-// router.beforeEach((to, from) => {
-//   // 如果没有Token，且访问的是非登录页，拦截到登录，其他情况正常放行
-//   const useStore = useUserStore()
-//   if (!useStore.token && to.path !== '/login') {
-//     return '/login'
-//   }
-// })
+router.beforeEach((to, from) => {
+  // 如果没有Token，且访问的是非登录页，拦截到登录，其他情况正常放行
+  const useStore = useUserStore()
+  if (!useStore.token && to.path !== '/login') {
+    return '/login'
+  }
+})
 
 export default router

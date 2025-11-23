@@ -19,6 +19,7 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus';
 import { useUserStore } from '@/stores';
+import { userGetInfoService } from '@/api/user';
 
 
 const router = useRouter()
@@ -41,13 +42,29 @@ const handleCommand = async (key) => {
 
   // 退出操作--> 清除本地数据 （Token + user信息）
     userStore.removeToken()
-    // userStore.setUser({})
     router.push('/login')
   } else {
     // 跳转操作
     router.push(`/user/${ key }`)
   }
 }
+
+onMounted(async () => {
+  try {
+    // 调用接口获取用户信息
+    const res = await userGetInfoService()
+    console.log(res.data);
+    
+    
+    // 将返回的数据存入 store（假设你的 store 有 updateUserInfo 方法）
+    userStore.updateUserInfo(res.data)
+    
+  } catch (error) {
+    console.error('主页加载用户信息失败:', error)
+    // 可选：跳转回登录页
+    // router.push('/login')
+  }
+})
 </script>
 <template>
   <div class="common-layout">
@@ -68,16 +85,16 @@ const handleCommand = async (key) => {
         >
           <!-- 管理员菜单 -->
           <template v-if="userStore.role === 'admin'">
-            <el-sub-menu index="/user">
+            <el-sub-menu index="/user1">
               <template #title>
                 <el-icon><User /></el-icon>
                 <span>用户管理</span>
               </template>
-              <el-menu-item index="/user/teacher">
+              <el-menu-item index="/user1/teacher">
                 <el-icon><Avatar /></el-icon>
                 <span>教师管理</span>
               </el-menu-item>
-              <el-menu-item index="/user/student">
+              <el-menu-item index="/user1/student">
                 <el-icon><Avatar /></el-icon>
                 <span>学生管理</span>
               </el-menu-item>
@@ -253,9 +270,9 @@ const handleCommand = async (key) => {
            <el-dropdown placement="bottom-end" @command="handleCommand">
               <span class="el-dropdown__box">
                 <!-- 用户头像 -->
-                <el-avatar src="" />
+                <el-avatar :src="userStore.avatar" />
                 
-                <span style="margin: 0 5px;">{{userStore.username}}</span>
+                <span style="margin: 0 5px;">{{userStore.name}}</span>
                 <!-- 小图标 -->
                 <el-icon><CaretBottom /></el-icon>
               </span>

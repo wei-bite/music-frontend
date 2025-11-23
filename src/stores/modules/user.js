@@ -1,4 +1,4 @@
-// src/stores/index.js
+// stores/user.js
 import { defineStore } from 'pinia'
 import { jwtDecode } from 'jwt-decode'
 
@@ -6,7 +6,13 @@ export const useUserStore = defineStore('music-store-user', {
     state: () => ({
         token: '',
         username: '',
-        role: ''
+        role: '',
+        name: '',
+        avatar: '',
+        email: '',
+        phone: '',
+        address: '',
+        gender: ''
     }),
     actions: {
         setToken(token) {
@@ -14,9 +20,8 @@ export const useUserStore = defineStore('music-store-user', {
             if (token) {
                 try {
                     const payload = jwtDecode(token)
-                    // 👇 改成从 username 字段取
                     this.username = payload.username || payload.sub || ''
-                    this.role = payload.role || '' // 或 authorities[0] 等
+                    this.role = payload.role || ''
                 } catch (e) {
                     console.error('Token 解析失败', e)
                 }
@@ -26,11 +31,17 @@ export const useUserStore = defineStore('music-store-user', {
             }
         },
         removeToken() {
-            this.token = ''
-            this.username = ''
-            this.role = ''
+            this.$reset()
+        },
+        updateUserInfo(data) {
+            if (data) {
+                const payload = { ...data }
+                if (payload.avatar && payload.avatar.startsWith('/files/')) {
+                    payload.avatar = 'http://localhost:8080' + payload.avatar
+                }
+                Object.assign(this.$state, payload)
+            }
         }
-    }
-}, {
+    },
     persist: true
 })

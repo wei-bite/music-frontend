@@ -8,7 +8,6 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/index';
 import { jwtDecode } from 'jwt-decode'
 
-const isRegister = ref(false)
 const form = ref()
 //注册
 // 整个用于提交的form数据对象
@@ -54,8 +53,7 @@ const login = async () => {
     console.log(res); 
     userStore.setToken(res.data.token)//接收Token
     console.log('JWT Payload:', jwtDecode(res.data.token))
-    
-    
+
     // 登录成功
     ElMessage.success('登录成功')
     router.push('/home')

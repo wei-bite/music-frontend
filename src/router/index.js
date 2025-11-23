@@ -13,8 +13,8 @@ const router = createRouter({
       // 二级路由
       children: [
         // 管理员页面路由
-        { path: '/user/teacher', component: () => import('@/views/admin/user-manage/teacher.vue') },
-        { path: '/user/student', component: () => import('@/views/admin/user-manage/student.vue') },
+        { path: '/user1/teacher', component: () => import('@/views/admin/user-manage/teacher.vue') },
+        { path: '/user1/student', component: () => import('@/views/admin/user-manage/student.vue') },
         { path: '/schedule', component: () => import('@/views/admin/schedule-manage/schedule.vue') },
         { path: '/course', component: () => import('@/views/admin/course-manage/course.vue') },
         { path: '/operation/income', component: () => import('@/views/admin/operation-manage/income.vue') },
@@ -55,6 +55,7 @@ router.beforeEach((to, from) => {
   if (!useStore.token && to.path !== '/login') {
     return '/login'
   }
+  return true
 })
 
 export default router

@@ -24,7 +24,7 @@ instance.interceptors.request.use(
 
       // 检查 token 是否有效
       if (token && token.length > 0) {
-        config.headers.Authorization = token
+        config.headers.Authorization = `Bearer ${token}`
       } else {
         console.warn('无效的 token，已跳过设置')
       }

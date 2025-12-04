@@ -22,6 +22,7 @@ export const useUserStore = defineStore('music-store-user', {
                     const payload = jwtDecode(token)
                     this.username = payload.username || payload.sub || ''
                     this.role = payload.role || ''
+
                 } catch (e) {
                     console.error('Token 解析失败', e)
                 }

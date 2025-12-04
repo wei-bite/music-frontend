@@ -88,6 +88,9 @@ const submitForm = async () => {
         <el-descriptions-item label="真实姓名">
           {{ userStore.name || '—' }}
         </el-descriptions-item>
+        <el-descriptions-item label="性别">
+          {{ userStore.gender || '—' }}
+        </el-descriptions-item>
         <el-descriptions-item label="电子邮箱">
           {{ userStore.email || '—' }}
         </el-descriptions-item>
@@ -135,14 +138,13 @@ const submitForm = async () => {
         <el-form-item label="联系地址" prop="address">
           <el-input v-model="formData.address" />
         </el-form-item>
+        <el-form-item class="dialog-footer">
+          <span class="dialog-footer">
+            <el-button @click="cancel">取消</el-button>
+            <el-button type="primary" @click="submitForm">保存</el-button>
+          </span>
+        </el-form-item>
       </el-form>
-
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="cancel">取消</el-button>
-          <el-button type="primary" @click="submitForm">保存</el-button>
-        </span>
-      </template>
     </el-drawer>
   </PageContainer>
 </template>

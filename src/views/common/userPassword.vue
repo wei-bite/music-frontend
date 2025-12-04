@@ -75,17 +75,17 @@ const resetForm = () => {
       <el-form :model="formModel" :rules="rules" ref="formRef" label-width="100px" label-position="left">
         <!-- 当前密码 -->
         <el-form-item label="当前密码" prop="old_pwd">
-          <el-input type="password" v-model="formModel.old_pwd" autocomplete="off" placeholder="请输入当前密码" />
+          <el-input type="password" v-model="formModel.old_pwd" autocomplete="off" placeholder="请输入当前密码" @keyup.enter="submitForm"/>
         </el-form-item>
 
         <!-- 新密码 -->
         <el-form-item label="新密码" prop="new_pwd">
-          <el-input type="password" v-model="formModel.new_pwd" autocomplete="off" placeholder="请输入新密码" />
+          <el-input type="password" v-model="formModel.new_pwd" autocomplete="off" placeholder="请输入新密码" @keyup.enter="submitForm"/>
         </el-form-item>
 
         <!-- 确认新密码 -->
         <el-form-item label="确认新密码" prop="re_pwd">
-          <el-input type="password" v-model="formModel.re_pwd" autocomplete="off" placeholder="请再次输入新密码" />
+          <el-input type="password" v-model="formModel.re_pwd" autocomplete="off" placeholder="请再次输入新密码" @keyup.enter="submitForm" />
         </el-form-item>
 
         <!-- 提交按钮 -->

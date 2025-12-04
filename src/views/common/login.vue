@@ -56,7 +56,7 @@ const login = async () => {
 
     // 登录成功
     ElMessage.success('登录成功')
-    router.push('/home')
+    router.push('/layout')
     
   } catch (error) {
     console.log('登录过程中出错:', error)

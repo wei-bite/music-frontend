@@ -1,293 +1,472 @@
-<template>
-  <el-container class="layout-container">
-    <el-aside width="200px" class="sidebar">
-      <div class="logo">
-        <img src="@/assets/logo.png" alt="Logo" />
-        <span>音乐培训管理系统</span>
-      </div>
-      <el-menu
-        :default-active="$route.path"
-        class="el-menu-vertical"
-        @select="handleSelect"
-        router
-      >
-        <!-- 管理员菜单 -->
-        <template v-if="userStore.role === 'admin'">
-          <el-menu-item index="/admin/dashboard">
-            <el-icon><House /></el-icon>
-            <span>仪表盘</span>
-          </el-menu-item>
-          <el-sub-menu index="/admin/user">
-            <template #title>
-              <el-icon><User /></el-icon>
-              <span>用户管理</span>
-            </template>
-            <el-menu-item index="/admin/user/list">用户列表</el-menu-item>
-            <el-menu-item index="/admin/user/detail">用户详情</el-menu-item>
-          </el-sub-menu>
-          <el-menu-item index="/admin/course">
-            <el-icon><Collection /></el-icon>
-            <span>课程管理</span>
-          </el-menu-item>
-          <el-menu-item index="/admin/schedule">
-            <el-icon><Calendar /></el-icon>
-            <span>课程安排</span>
-          </el-menu-item>
-          <el-menu-item index="/admin/instrument">
-            <el-icon><Tools /></el-icon>
-            <span>乐器管理</span>
-          </el-menu-item>
-          <el-menu-item index="/admin/room">
-            <el-icon><OfficeBuilding /></el-icon>
-            <span>琴房管理</span>
-          </el-menu-item>
-          <el-menu-item index="/admin/announcement">
-            <el-icon><Message /></el-icon>
-            <span>公告管理</span>
-          </el-menu-item>
-          <el-menu-item index="/admin/financial">
-            <el-icon><DataAnalysis /></el-icon>
-            <span>财务管理</span>
-          </el-menu-item>
-        </template>
-
-        <!--教师菜单 -->
-        <template v-if="userStore.role === 'teacher'">
-          <el-menu-item index="/teacher/dashboard">
-            <el-icon><House /></el-icon>
-            <span>工作台</span>
-          </el-menu-item>
-          <el-menu-item index="/teacher/schedule">
-            <el-icon><Calendar /></el-icon>
-            <span>我的课表</span>
-          </el-menu-item>
-          <el-menu-item index="/teacher/attendance">
-            <el-icon><Checked /></el-icon>
-            <span>考勤管理</span>
-          </el-menu-item>
-          <el-menu-item index="/teacher/leave">
-            <el-icon><Edit /></el-icon>
-            <span>请假审批</span>
-          </el-menu-item>
-          <el-menu-item index="/teacher/score">
-            <el-icon><EditPen /></el-icon>
-            <span>考试打分</span>
-          </el-menu-item>
-          <el-menu-item index="/teacher/salary">
-            <el-icon><Money /></el-icon>
-            <span>工资明细</span>
-          </el-menu-item>
-          <el-menu-item index="/teacher/reserve">
-            <el-icon><Timer /></el-icon>
-            <span>琴房预约</span>
-          </el-menu-item>
-          <el-menu-item index="/teacher/announcement">
-            <el-icon><Message /></el-icon>
-            <span>公告活动</span>
-          </el-menu-item>
-        </template>
-
-        <!--学菜单 -->
-        <template v-if="userStore.role === 'student'">
-          <el-menu-item index="/student/schedule">
-            <el-icon><Calendar /></el-icon>
-            <span>我的课表</span>
-          </el-menu-item>
-          <el-menu-item index="/student/exam">
-            <el-icon><DataLine /></el-icon>
-            <span>我的成绩</span>
-          </el-menu-item>
-          <el-menu-item index="/student/leave">
-            <el-icon><Edit /></el-icon>
-            <span>请假申请</span>
-          </el-menu-item>
-          <el-menu-item index="/student/reserve">
-            <el-icon><Timer /></el-icon>
-            <span>琴房预约</span>
-          </el-menu-item>
-          <el-menu-item index="/student/rent">
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-jita"></use>
-            </svg>
-            <span>乐器租借</span>
-          </el-menu-item>
-          <el-menu-item index="/student/sold">
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-jita"></use>
-            </svg>
-            <span>乐器购买</span>
-          </el-menu-item>
-          <el-menu-item index="/student/announcement">
-            <el-icon><Message /></el-icon>
-            <span>公告活动</span>
-          </el-menu-item>
-        </template>
-      </el-menu>
-    </el-aside>
-
-    <el-container>
-      <el-header class="header">
-        <div class="user-info">
-          <el-dropdown @command="handleCommand">
-            <span class="el-dropdown-link">
-              <el-avatar :src="userStore.avatar" />
-              {{ userStore.name }}
-              <el-icon class="el-icon--right">
-                <arrow-down />
-              </el-icon>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="profile">个人资料</el-dropdown-item>
-                <el-dropdown-item command="avatar">修改头像</el-dropdown-item>
-                <el-dropdown-item command="password">修改密码</el-dropdown-item>
-                <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </div>
-      </el-header>
-
-      <el-main class="main-content">
-        <router-view />
-      </el-main>
-    </el-container>
-  </el-container>
-</template>
-
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useUserStore } from '@/stores'
 import { useRouter } from 'vue-router'
-import { ElMessageBox, ElMessage } from 'element-plus'
+import 'element-plus/dist/index.css'
 import {
-  House,
   User,
-  Collection,
+  Notebook,
   Calendar,
-  Tools,
-  OfficeBuilding,
   Message,
-  DataAnalysis,
-  Checked,
   Edit,
-  EditPen,
-  Money,
   Timer,
-  DataLine,
-  ArrowDown
+  UserFilled,
+  SwitchButton,
+  CaretBottom,
+  Avatar,
+  Crop,
+  EditPen,
+  DataLine
 } from '@element-plus/icons-vue'
-import { userGetInfoService } from '@/api/user'
+import { ElMessageBox } from 'element-plus';
+import { useUserStore } from '@/stores';
+import { userGetInfoService } from '@/api/user';
 
-const userStore = useUserStore()
+
+
+
 const router = useRouter()
+const userStore = useUserStore()
 
-const handleSelect = (key) => {
-  console.log('菜单选择:', key)
-}
 
-const handleCommand = async (command) => {
-  if (command === 'logout') {
-    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
-      confirmButtonText: '确定',
+const handleCommand = async (key) => {
+  console.log(key);
+  
+  if (key === 'logout') {
+    // 如果不加异步直接先退出在弹出框
+    await ElMessageBox.confirm(
+    '你确认进行退出么？',
+    '温馨提示',
+    {
+      confirmButtonText: '确认',
       cancelButtonText: '取消',
-      type: 'warning'
-    })
+      type: 'warning',
+    }
+  )
+
+
+  // 退出操作--> 清除本地数据 （Token + user信息）
     userStore.removeToken()
     router.push('/login')
-    ElMessage.success('退出成功')
   } else {
-    router.push(`/user/${command}`)
+    // 跳转操作
+    router.push(`/user/${ key }`)
   }
 }
+
 
 onMounted(async () => {
   try {
+    // 调用接口获取用户信息
     const res = await userGetInfoService()
+    console.log(res.data);
+    
+    
+    // 将返回的数据存入 store（假设你的 store 有 updateUserInfo 方法）
     userStore.updateUserInfo(res.data)
+    
   } catch (error) {
-    console.error('获取用户信息失败:', error)
+    console.error('主页加载用户信息失败:', error)
+    // 可选：跳转回登录页
+    // router.push('/login')
   }
 })
 </script>
+<template>
+  <div class="common-layout">
+    <el-container>
+      <!-- 侧边栏 -->
+      <el-aside width="200px">
+        <!-- logo区域 -->
+        <div class="el-aside__logo"></div>
 
-<style scoped lang="scss">
-.layout-container {
+
+        <!-- 菜单区域 -->
+        <el-menu
+          :default-active="$route.path"
+          class="el-menu-vertical-demo"
+          background-color="#324157"
+          text-color="#fff"
+          active-text-color="#ffd04b"
+          router
+        >
+        <el-menu-item index="/home">
+          <el-icon><Avatar /></el-icon>
+          <span>首页</span>
+        </el-menu-item>
+          <!-- 管理员菜单 -->
+          <template v-if="userStore.role === 'admin'">
+            <el-sub-menu index="/user1">
+              <template #title>
+                <el-icon><User /></el-icon>
+                <span>用户管理</span>
+              </template>
+              <el-menu-item index="/user1/list">
+                <el-icon><Avatar /></el-icon>
+                <span>用户列表</span>
+              </el-menu-item>
+              <el-menu-item index="/user1/detail">
+                <el-icon><Avatar /></el-icon>
+                <span>用户详情页</span>
+              </el-menu-item>
+            <!-- 用户密码重置 -->
+              <el-menu-item index="/user1/reset-password">
+                <el-icon><EditPen /></el-icon>
+                <span>用户密码重置</span>
+              </el-menu-item>
+            </el-sub-menu>
+
+            <el-sub-menu index="/course">
+              <template #title>
+                <el-icon><Notebook /></el-icon>
+                <span>课程管理</span>
+              </template>
+              <el-menu-item index="/course/list">
+                <el-icon><Notebook /></el-icon>
+                <span>课程列表</span>
+              </el-menu-item>
+              <el-menu-item index="/course/detail">
+                <el-icon><Notebook /></el-icon>
+                <span>课程详情页</span>
+              </el-menu-item>
+              <el-menu-item index="/course/recover">
+                <el-icon><EditPen /></el-icon>
+                <span>课程恢复</span>
+              </el-menu-item>
+            </el-sub-menu>
+
+            <el-sub-menu index="/schedule">
+              <template #title>
+                <el-icon><Calendar /></el-icon>
+                <span>排课管理</span>
+              </template>
+              <el-menu-item index="/schedule/list">
+                <el-icon><Calendar /></el-icon>
+                <span>排课列表</span>
+              </el-menu-item>
+              <el-menu-item index="/schedule/batch">
+                <el-icon><EditPen /></el-icon>
+                <span>批量操作</span>
+              </el-menu-item>
+            </el-sub-menu>
+
+
+
+            <el-sub-menu index="/instrument">
+              <template #title>
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-yinle"></use>
+                </svg>
+                <span>乐器管理</span>
+              </template>
+              <el-menu-item index="/music/instrument/list">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-yinle"></use>
+                </svg>
+                <span>乐器类型列表</span>
+              </el-menu-item>
+              <el-menu-item index="/music/instrument/batch">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-yinle"></use>
+                </svg>
+                <span>乐器批量入库</span>
+              </el-menu-item>
+              <el-menu-item index="/music/rent">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-yinle"></use>
+                </svg>
+                <span>审批租借申请</span>
+              </el-menu-item>
+              <el-menu-item index="/music/rented">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-yinle"></use>
+                </svg>
+                <span>已租借乐器列表</span>
+              </el-menu-item>
+              <el-menu-item index="/music/sold">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-yinle"></use>
+                </svg>
+                <span>已售出乐器列表</span>
+              </el-menu-item>
+            </el-sub-menu>
+
+            <el-sub-menu index="/music">
+              <template #title>
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-gangqin"></use>
+                </svg>
+                <span>琴房管理</span>
+              </template>
+              <el-menu-item index="/music/room/list">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-gangqin"></use>
+                </svg>
+                <span>琴房列表</span>
+              </el-menu-item>
+              <el-menu-item index="/music/room/pendingList">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-jita"></use>
+                </svg>
+                <span>琴房待审核列表</span>
+              </el-menu-item>
+            </el-sub-menu>
+
+            
+
+            <el-sub-menu index="/operation">
+              <template #title>
+                <el-icon><DataLine /></el-icon>
+                <span>运营管理</span>
+              </template>
+              <el-menu-item index="/operation/income">
+                <el-icon><DataLine /></el-icon>
+                <span>财务记录列表</span>
+              </el-menu-item>
+              <el-menu-item index="/operation/salary">
+                <el-icon><DataLine /></el-icon>
+                <span>经营趋势数据</span>
+              </el-menu-item>
+              <el-menu-item index="/operation/salaryList">
+                <el-icon><DataLine /></el-icon>
+                <span>工资明细列表</span>
+              </el-menu-item>
+            </el-sub-menu>
+            
+            <el-menu-item index="/announcement/manage">
+              <el-icon><Message /></el-icon>
+              <span>公告管理</span>
+            </el-menu-item>
+          </template>
+
+
+          <!-- 老师菜单 -->
+          <template v-if="userStore.role === 'teacher'">
+            <el-menu-item index="/teacher/schedule">
+              <el-icon><Calendar /></el-icon>
+              <span>我的课表</span>
+            </el-menu-item>
+
+
+            <el-menu-item index="/teacher/attendance">
+              <el-icon><Notebook /></el-icon>
+              <span>考勤记录</span>
+            </el-menu-item>
+
+
+            <el-menu-item index="/teacher/salary">
+              <el-icon><DataLine /></el-icon>
+              <span>工资明细</span>
+            </el-menu-item>
+
+
+            <el-menu-item index="/teacher/leave">
+              <el-icon><Edit /></el-icon> 
+              <span>请假审批</span>
+            </el-menu-item>
+
+
+            <el-menu-item index="/teacher/score">
+              <el-icon><EditPen /></el-icon>
+              <span>考试打分</span>
+            </el-menu-item>
+
+
+            <el-menu-item index="/teacher/reserve">
+              <el-icon><Timer /></el-icon>
+              <span>琴房预约</span>
+            </el-menu-item>
+
+
+            <el-menu-item index="/teacher/announcement">
+              <el-icon><Message /></el-icon>
+              <span>公告活动</span>
+            </el-menu-item>
+            
+          </template>
+
+
+          <!-- 学生菜单 -->
+          <template v-if="userStore.role === 'student'">
+            <el-menu-item index="/student/schedule">
+              <el-icon><Calendar /></el-icon>
+              <span>我的课表</span>
+            </el-menu-item>
+            <el-menu-item index="/student/exam">
+              <el-icon><Calendar /></el-icon>
+              <span>考试成绩</span>
+            </el-menu-item>
+            <el-menu-item index="/student/leave">
+              <el-icon><Edit /></el-icon>
+              <span>请假申请</span>
+            </el-menu-item>
+            <el-menu-item index="/student/reserve">
+              <el-icon><Timer /></el-icon>
+              <span>琴房预约</span>
+            </el-menu-item>
+            <el-menu-item index="/student/rent">
+              <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-jita"></use>
+                </svg>
+              <span>乐器租借</span>
+            </el-menu-item>
+            <el-menu-item index="/student/sold">
+              <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-jita"></use>
+                </svg>
+              <span>乐器购买</span>
+            </el-menu-item>
+            <el-menu-item index="/student/evaluate">
+              <el-icon><EditPen /></el-icon>
+              <span>教师评价</span>
+            </el-menu-item>
+            <el-menu-item index="/student/announcement">
+              <el-icon><Message /></el-icon>
+              <span>公告活动</span>
+            </el-menu-item>
+          </template>
+
+
+          <el-sub-menu index="/user">
+          <!-- 多级菜单的标题 - 具名插槽 title-->
+          <template #title>
+            <el-icon><UserFilled /></el-icon>
+            <span>个人中心</span>
+          </template>
+
+
+          <!-- 展开的内容 - 默认插槽 -->
+          <el-menu-item index="/user/profile">
+            <el-icon><User /></el-icon>
+            <span>基本资料</span>
+          </el-menu-item>
+          <el-menu-item index="/user/avatar">
+            <el-icon><Crop /></el-icon>
+            <span>更换头像</span>
+          </el-menu-item>
+          <el-menu-item index="/user/password">
+            <el-icon><EditPen /></el-icon>
+            <span>重置密码</span>
+          </el-menu-item>
+        </el-sub-menu>
+
+
+          <el-menu-item @click="() => handleCommand('logout')">
+            <el-icon><SwitchButton /></el-icon>
+            <span>退出登录</span>
+          </el-menu-item>
+        </el-menu>
+      </el-aside>
+
+
+      <!-- 主内容区 -->
+      <el-container class="content">
+        <el-header>
+          <!-- 左边文字区域 -->
+          <div>琴行管理系统，欢迎您：<strong>{{ userStore.username }}</strong></div>
+          <!-- 右边区域dropdown下拉菜单 -->
+           <el-dropdown placement="bottom-end" @command="handleCommand">
+              <span class="el-dropdown__box">
+                <!-- 用户头像 -->
+                <el-avatar :src="userStore.avatar" />
+                
+                <span style="margin: 0 5px;">{{userStore.name}}</span>
+                <!-- 小图标 -->
+                <el-icon><CaretBottom /></el-icon>
+              </span>
+
+
+              <!-- 折叠的下拉菜单部分 -->
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <!-- command='标识（与目标路由同名）' -->
+                  <el-dropdown-item command="profile" :icon="User"
+                    >基本资料</el-dropdown-item
+                  >
+                  <el-dropdown-item command="avatar" :icon="Crop"
+                    >更换头像</el-dropdown-item
+                  >
+                  <el-dropdown-item command="password" :icon="EditPen"
+                    >重置密码</el-dropdown-item
+                  >
+                  <el-dropdown-item command="logout" :icon="SwitchButton"
+                    >退出登录</el-dropdown-item
+                  >
+                </el-dropdown-menu>
+              </template>
+           </el-dropdown>
+        </el-header>
+
+
+        <!-- 主盒子 -->
+        <el-main>
+          <router-view></router-view>
+        </el-main>
+        <el-footer>琴行管理系统 © 2025 Created by new</el-footer>
+      </el-container>
+    </el-container>
+  </div>
+</template>
+
+
+<style lang="scss" scoped>
+.common-layout {
   height: 100vh;
   background-color: #324157;
-
-  .sidebar {
+  .el-aside {
     background-color: #324157;
 
-    .logo {
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-      border-bottom: 1px solid #4a5b79;
 
-      img {
-        height: 32px;
-        margin-right: 10px;
-      }
+    &__logo {
+      height: 120px;
+      background: url('@/assets/logo.png') no-repeat 0 / 120px auto;
     }
-
     .el-menu {
+      min-height: 50vw;
       border-right: none;
-      background-color: #324157;
-
-      :deep(.el-menu-item) {
-        color: #bfcbd9;
-
-        &:hover {
-          background-color: #4a5b79;
-        }
-
-        &.is-active {
-          background-color: #409eff;
-          color: white;
-        }
-      }
     }
   }
+  .content {
+    min-height: 50vw;
+    background-color: #efefef;
+    border-radius: 30px 0 0 30px;
+  }
 
-  .header {
-    background-color: white;
-    border-bottom: 1px solid #e4e7ed;
+
+    .el-header {
+    border-radius: 20px;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    padding: 0 20px;
+    justify-content: space-between;
+    .el-dropdown__box {
+      display: flex;
+      align-items: center;
+      .el-icon {
+        color: #999;
+        margin-right: 10px;
+      }
 
-    .user-info {
-      .el-dropdown-link {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        color: #606266;
 
-        .el-avatar {
-          margin-right: 10px;
-        }
+      &:active,
+      &:focus {
+        outline: none;
       }
     }
   }
-
-  .main-content {
-    background-color: #f5f7fa;
-    padding: 20px;
-    overflow-y: auto;
+  .el-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #666;
   }
-
   .icon {
-    width: 1em;
-    height: 1em;
-    vertical-align: -0.15em;
-    fill: currentColor;
-    overflow: hidden;
-  }
+  width: 20px;
+  height: 20px;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
 }
+}
+
+
 </style>

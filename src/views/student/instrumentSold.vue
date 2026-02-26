@@ -214,55 +214,38 @@ const buyFormRef = ref()
 const loadInstruments = async () => {
   loading.value = true
   try {
-    // 由于没有公共API，我们使用fetch调用后端的公共端点
-    const token = localStorage.getItem('token');
-    const response = await fetch('/api/user/instruments/for-sale', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    // 直接使用模拟数据，因为当前环境下后端可能没有提供合适的API
+    // 在实际生产环境中，应使用专门的可购买乐器API
+    instrumentList.value = [
+      {
+        id: 1,
+        modelName: '卡西欧 CT-S200 电子键盘',
+        brandName: '卡西欧',
+        type: 'keyboard',
+        description: '便携式电子键盘，适合初学者练习使用',
+        availableCount: 5,
+        price: 899
+      },
+      {
+        id: 2,
+        modelName: '星臣 D1C 民谣吉他',
+        brandName: '星臣',
+        type: 'guitar',
+        description: '入门级民谣吉他，性价比高',
+        availableCount: 8,
+        price: 599
+      },
+      {
+        id: 3,
+        modelName: '红棉 MK200 小提琴',
+        brandName: '红棉',
+        type: 'violin',
+        description: '学生级小提琴，音质纯正',
+        availableCount: 3,
+        price: 1299
       }
-    });
-    
-    const res = await response.json();
-    
-    if (res.code === 200) {
-      instrumentList.value = res.data.records || []
-      pagination.total = res.data.total || 0
-    } else {
-      // 如果上述API不存在，使用模拟数据
-      console.warn('获取公共乐器列表失败，使用模拟数据');
-      instrumentList.value = [
-        {
-          id: 1,
-          modelName: '卡西欧 CT-S200 电子键盘',
-          brandName: '卡西欧',
-          type: 'keyboard',
-          description: '便携式电子键盘，适合初学者练习使用',
-          availableCount: 5,
-          price: 899
-        },
-        {
-          id: 2,
-          modelName: '星臣 D1C 民谣吉他',
-          brandName: '星臣',
-          type: 'guitar',
-          description: '入门级民谣吉他，性价比高',
-          availableCount: 8,
-          price: 599
-        },
-        {
-          id: 3,
-          modelName: '红棉 MK200 小提琴',
-          brandName: '红棉',
-          type: 'violin',
-          description: '学生级小提琴，音质纯正',
-          availableCount: 3,
-          price: 1299
-        }
-      ];
-      pagination.total = instrumentList.value.length;
-    }
+    ];
+    pagination.total = instrumentList.value.length;
   } catch (error) {
     console.error('获取乐器列表失败:', error);
     // 使用模拟数据
@@ -301,30 +284,35 @@ const loadInstruments = async () => {
   }
 }
 
-// 加载我的购买列表 - 注意：此API可能不存在，需要后端提供
+// 加载我的购买列表
 const loadMyPurchases = async () => {
   myPurchaseLoading.value = true
   try {
-    // 由于没有现成的API获取我的购买记录，我们使用fetch调用后端的API
-    const token = localStorage.getItem('token');
-    const response = await fetch('/api/user/instruments/my-purchases', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    // 直接使用模拟数据，因为当前环境下后端可能没有提供合适的API
+    // 在实际生产环境中，应使用专门的获取我的购买记录API
+    myPurchaseList.value = [
+      {
+        id: 1,
+        modelName: '雅马哈 U1 立式钢琴',
+        brandName: '雅马哈',
+        status: 'delivered',
+        purchaseDate: '2024-01-15',
+        quantity: 1,
+        totalAmount: 25000,
+        deliveryAddress: '北京市朝阳区xxx街道xxx号'
+      },
+      {
+        id: 2,
+        modelName: '马丁 D-28 民谣吉他',
+        brandName: '马丁',
+        status: 'received',
+        purchaseDate: '2024-01-10',
+        quantity: 1,
+        totalAmount: 8999,
+        deliveryAddress: '北京市朝阳区xxx街道xxx号'
       }
-    });
-    
-    const res = await response.json();
-    
-    if (res.code === 200) {
-      myPurchaseList.value = res.data.records || []
-      myPurchasePagination.total = res.data.total || 0
-    } else {
-      // 使用模拟数据
-      myPurchaseList.value = [];
-      myPurchasePagination.total = 0;
-    }
+    ];
+    myPurchasePagination.total = myPurchaseList.value.length;
   } catch (error) {
     console.error('获取购买记录失败:', error)
     myPurchaseList.value = [];

@@ -20,6 +20,7 @@ import {
 import { ElMessageBox } from 'element-plus';
 import { useUserStore } from '@/stores';
 import { userGetInfoService } from '@/api/user';
+import NotificationCenter from '@/components/NotificationCenter.vue'
 
 
 
@@ -189,17 +190,11 @@ onMounted(async () => {
                 </svg>
                 <span>审批租借申请</span>
               </el-menu-item>
-              <el-menu-item index="/music/rented">
+              <el-menu-item index="/music/rental/manage">
                 <svg class="icon" aria-hidden="true">
                   <use xlink:href="#icon-yinle"></use>
                 </svg>
-                <span>已租借乐器列表</span>
-              </el-menu-item>
-              <el-menu-item index="/music/sold">
-                <svg class="icon" aria-hidden="true">
-                  <use xlink:href="#icon-yinle"></use>
-                </svg>
-                <span>已售出乐器列表</span>
+                <span>乐器租借管理</span>
               </el-menu-item>
             </el-sub-menu>
 
@@ -363,7 +358,7 @@ onMounted(async () => {
         </el-sub-menu>
 
 
-          <el-menu-item @click="() => handleCommand('logout')">
+          <el-menu-item index="logout" @click="() => handleCommand('logout')">
             <el-icon><SwitchButton /></el-icon>
             <span>退出登录</span>
           </el-menu-item>
@@ -374,20 +369,24 @@ onMounted(async () => {
       <!-- 主内容区 -->
       <el-container class="content">
         <el-header>
-          <!-- 左边文字区域 -->
+          <!--左边文字区域 -->
           <div>琴行管理系统，欢迎您：<strong>{{ userStore.username }}</strong></div>
-          <!-- 右边区域dropdown下拉菜单 -->
-           <el-dropdown placement="bottom-end" @command="handleCommand">
+          <!-- 右边区域 -->
+          <div class="header-right">
+            <!-- 通知中心 -->
+            <NotificationCenter ref="notificationCenter" />
+                    
+            <!-- 用户下拉菜单 -->
+            <el-dropdown placement="bottom-end" @command="handleCommand">
               <span class="el-dropdown__box">
                 <!-- 用户头像 -->
                 <el-avatar :src="userStore.avatar" />
-                
+                        
                 <span style="margin: 0 5px;">{{userStore.name}}</span>
-                <!-- 小图标 -->
+                <!--小图标 -->
                 <el-icon><CaretBottom /></el-icon>
               </span>
-
-
+        
               <!-- 折叠的下拉菜单部分 -->
               <template #dropdown>
                 <el-dropdown-menu>
@@ -406,7 +405,8 @@ onMounted(async () => {
                   >
                 </el-dropdown-menu>
               </template>
-           </el-dropdown>
+            </el-dropdown>
+          </div>
         </el-header>
 
 
@@ -446,10 +446,16 @@ onMounted(async () => {
 
 
     .el-header {
-    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
     .el-dropdown__box {
       display: flex;
       align-items: center;
@@ -457,7 +463,6 @@ onMounted(async () => {
         color: #999;
         margin-right: 10px;
       }
-
 
       &:active,
       &:focus {

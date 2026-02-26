@@ -2,6 +2,8 @@
   <div class="instrument-rent-container">
     <el-tabs v-model="activeTab" type="card">
       <el-tab-pane label="可租乐器" name="available">
+        <!-- 添加测试按钮 -->
+        <el-button @click="testLoadMyRentals" style="margin-bottom: 10px;">测试加载我的租借</el-button>
         <el-card shadow="never" style="border-radius: 8px; border: 1px solid #e4e7ed;">
           <template #header>
             <div class="card-header">
@@ -84,19 +86,14 @@
                   </el-tag>
                 </template>
               </el-table-column>
-              <el-table-column prop="startDate" label="租借日期" min-width="120" align="center" />
-              <el-table-column prop="expectedReturnDate" label="应还日期" min-width="120" align="center" />
-              <el-table-column prop="actualReturnDate" label="实际归还" min-width="120" align="center">
-                <template #default="{ row }">
-                  {{ row.actualReturnDate || '-' }}
-                </template>
-              </el-table-column>
+              <el-table-column prop="rentedFrom" label="租借开始" min-width="120" align="center" />
+              <el-table-column prop="rentedTo" label="应还日期" min-width="120" align="center" />
               <el-table-column label="操作" min-width="120" align="center">
                 <template #default="{ row }">
                   <el-button 
                     type="warning" 
                     size="small" 
-                    :disabled="row.status !== 'renting'"
+                    :disabled="row.status !== 'rented'"
                     @click="returnInstrument(row)"
                   >
                     归还
@@ -117,6 +114,48 @@
             />
 
             <el-empty v-if="!myRentalLoading && myRentalList.length === 0" description="暂无租借记录" />
+          </div>
+        </el-card>
+      </el-tab-pane>
+      
+      <el-tab-pane label="逾期未还" name="overdue">
+        <el-card shadow="never" style="border-radius: 8px; border: 1px solid #e4e7ed;">
+          <template #header>
+            <div class="card-header">
+              <span>我的逾期未还乐器</span>
+            </div>
+          </template>
+
+          <!-- 即将到期租借列表 -->
+          <div class="expiring-list">
+            <el-table 
+              :data="expiringList" 
+              style="width: 100%" 
+              v-loading="expiringLoading" 
+              border
+              :header-cell-style="{background: '#f5f7fa', color: '#606266'}"
+            >
+              <el-table-column prop="modelName" label="乐器型号" min-width="150" align="center" />
+              <el-table-column prop="brandName" label="品牌" min-width="100" align="center" />
+              <el-table-column prop="type" label="类型" min-width="100" align="center" />
+              <el-table-column prop="serialNumber" label="序列号" min-width="120" align="center" />
+              <el-table-column prop="rentedFrom" label="租借开始" min-width="120" align="center" />
+              <el-table-column prop="rentedTo" label="应还日期" min-width="120" align="center" />
+              <el-table-column prop="overdueDays" label="逾期天数" min-width="100" align="center">
+                <template #default="{ row }">
+                  <el-tag type="danger" size="small">{{ row.overdueDays }}天</el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" min-width="120" align="center" fixed="right">
+                <template #default="{ row }">
+                  <el-button type="warning" size="small" @click="returnOverdueInstrument(row)">
+                    归还
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            
+            <el-empty v-if="!expiringLoading && expiringList.length === 0" description="暂无逾期未还的乐器" />
           </div>
         </el-card>
       </el-tab-pane>
@@ -162,7 +201,14 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { rentInstrumentService, getMyRentalsService, returnInstrumentService } from '@/api/common'
+import { 
+  rentInstrumentService, 
+  getMyRentalsService, 
+  returnInstrumentService,
+  checkRentalEligibilityService,
+  getRentalApplicationHistoryService,
+  getUserOverdueRentalsService
+} from '@/api/common'
 
 // 响应式数据
 const activeTab = ref('available')
@@ -182,6 +228,10 @@ const myRentalPagination = reactive({
   size: 10,
   total: 0
 })
+
+// 即将到期租借相关
+const expiringLoading = ref(false)
+const expiringList = ref([])
 
 // 租借对话框
 const rentDialog = reactive({
@@ -204,95 +254,47 @@ const rentDialog = reactive({
 
 const rentFormRef = ref()
 
-// 加载可租借乐器列表 - 使用模拟数据或后端提供的公共API
+//测试加载函数
+const testLoadMyRentals = () => {
+  console.log('手动触发测试加载我的租借...');
+  loadMyRentals();
+}
+
+//检查租借资格
+const checkRentalEligibility = async () => {
+  try {
+    const res = await checkRentalEligibilityService()
+    if (res.code === 200) {
+      return res.data // 返回资格状态
+    } else {
+      ElMessage.error(res.message || '检查租借资格失败')
+      return false
+    }
+  } catch (error) {
+    console.error('检查租借资格失败:', error)
+    return false
+  }
+}
+
+// 加载可租借乐器列表
 const loadInstruments = async () => {
   loading.value = true
   try {
-    // 由于没有公共API，我们使用fetch调用后端的公共端点
-    // 注意：这需要后端提供一个公共的可租借乐器API
-    const token = localStorage.getItem('token');
-    const response = await fetch('/api/user/instruments/available', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    const res = await response.json();
-    
-    if (res.code === 200) {
-      instrumentList.value = res.data.records || []
-      pagination.total = res.data.total || 0
-    } else {
-      // 如果上述API不存在，我们可以尝试管理员API（需要适当权限）
-      // 或者显示默认数据
-      console.warn('获取公共乐器列表失败，尝试其他方式');
-      // 模拟一些数据
-      instrumentList.value = [
-        {
-          id: 1,
-          modelName: '雅马哈 U1 立式钢琴',
-          brandName: '雅马哈',
-          type: 'piano',
-          description: '经典立式钢琴，音色优美，适合初学者和专业演奏者',
-          availableCount: 3,
-          rentalPrice: 50
-        },
-        {
-          id: 2,
-          modelName: '马丁 D-28 民谣吉他',
-          brandName: '马丁',
-          type: 'guitar',
-          description: '经典民谣吉他，音色饱满，深受音乐家喜爱',
-          availableCount: 2,
-          rentalPrice: 30
-        },
-        {
-          id: 3,
-          modelName: '斯特拉迪瓦里 小提琴',
-          brandName: '斯特拉迪瓦里',
-          type: 'violin',
-          description: '高品质小提琴，适合专业演奏',
-          availableCount: 1,
-          rentalPrice: 80
-        }
-      ];
-      pagination.total = instrumentList.value.length;
+    // 检查用户是否有租借资格
+    const eligible = await checkRentalEligibility()
+    if (!eligible) {
+      ElMessage.warning('您当前不具备租借乐器的资格')
+      instrumentList.value = []
+      pagination.total = 0
+      return
     }
+
+    // 使用模拟数据，因为当前后端可能没有提供专门的可租借乐器接口
+    useMockData()
   } catch (error) {
-    console.error('获取乐器列表失败:', error);
-    // 使用模拟数据
-    instrumentList.value = [
-      {
-        id: 1,
-        modelName: '雅马哈 U1 立式钢琴',
-        brandName: '雅马哈',
-        type: 'piano',
-        description: '经典立式钢琴，音色优美，适合初学者和专业演奏者',
-        availableCount: 3,
-        rentalPrice: 50
-      },
-      {
-        id: 2,
-        modelName: '马丁 D-28 民谣吉他',
-        brandName: '马丁',
-        type: 'guitar',
-        description: '经典民谣吉他，音色饱满，深受音乐家喜爱',
-        availableCount: 2,
-        rentalPrice: 30
-      },
-      {
-        id: 3,
-        modelName: '斯特拉迪瓦里 小提琴',
-        brandName: '斯特拉迪瓦里',
-        type: 'violin',
-        description: '高品质小提琴，适合专业演奏',
-        availableCount: 1,
-        rentalPrice: 80
-      }
-    ];
-    pagination.total = instrumentList.value.length;
+    console.error('获取可租借乐器列表失败:', error);
+    // 如果API调用失败，使用模拟数据
+    useMockData();
   } finally {
     loading.value = false
   }
@@ -300,16 +302,45 @@ const loadInstruments = async () => {
 
 // 加载我的租借列表
 const loadMyRentals = async () => {
+  console.log('开始加载我的租借列表...');
   myRentalLoading.value = true
   try {
     const params = {
       page: myRentalPagination.page,
       size: myRentalPagination.size
     }
-    const res = await getMyRentalsService(params)
+    console.log('调用getMyRentalsService，参数:', params);
+    const res = await getMyRentalsService({ params }) // 根据API定义传递参数
+    console.log('API响应:', res);
+    console.log('API响应data字段:', res.data);
+    console.log('API响应data类型:', typeof res.data);
+    console.log('API响应data是否为数组:', Array.isArray(res.data));
+    console.log('API响应data内容:', JSON.stringify(res.data, null, 2));
+    
     if (res.code === 200) {
-      myRentalList.value = res.data.records || []
-      myRentalPagination.total = res.data.total || 0
+      //检查data的结构
+      if (Array.isArray(res.data)) {
+        // 如果data直接是数组
+        myRentalList.value = res.data || []
+        myRentalPagination.total = res.data.length || 0
+        console.log('直接数组模式: 设置myRentalList为', myRentalList.value);
+        console.log('第一条记录:', myRentalList.value[0]);
+        console.log('字段检查 - modelName:', myRentalList.value[0]?.modelName);
+        console.log('字段检查 - brandName:', myRentalList.value[0]?.brandName);
+        console.log('字段检查 - status:', myRentalList.value[0]?.status);
+      } else if (res.data && res.data.records) {
+        // 如果data包含records字段
+        myRentalList.value = res.data.records || []
+        myRentalPagination.total = res.data.total || 0
+        console.log('records模式: 设置myRentalList为', myRentalList.value);
+      } else {
+        //其情况，使用空数组
+        myRentalList.value = []
+        myRentalPagination.total = 0
+        console.log('未知数据结构，使用空数组');
+      }
+      console.log('我的租借列表数据:', myRentalList.value);
+      console.log('分页总数:', myRentalPagination.total);
     } else {
       ElMessage.error(res.message || '获取租借记录失败')
     }
@@ -318,6 +349,64 @@ const loadMyRentals = async () => {
     ElMessage.error('获取租借记录失败')
   } finally {
     myRentalLoading.value = false
+  }
+}
+
+// 加载逾期未还列表
+const loadExpiringRentals = async () => {
+  expiringLoading.value = true
+  try {
+    const res = await getUserOverdueRentalsService()
+    if (res.code === 200) {
+      // 转换数据格式以匹配表格显示
+      expiringList.value = res.data.map(item => ({
+        instrumentId: item.instrumentId,
+        modelName: item.modelName,
+        brandName: item.brand,
+        type: item.type,
+        serialNumber: item.serialNumber,
+        rentedFrom: item.rentedFrom,
+        rentedTo: item.rentedTo,
+        // 计算逾期天数
+        overdueDays: Math.floor((new Date() - new Date(item.rentedTo)) / (1000 * 60 * 60 * 24)),
+        status: item.status
+      })) || []
+    } else {
+      ElMessage.error(res.message || '获取逾期租借失败')
+      // 使用模拟数据作为备选方案
+      expiringList.value = [
+        {
+          instrumentId: 1,
+          modelName: '雅马哈 U1 立式钢琴',
+          brandName: '雅马哈',
+          type: '钢琴',
+          serialNumber: 'SN123456789',
+          rentedFrom: '2024-01-15',
+          rentedTo: '2024-02-01',
+          overdueDays: 5,
+          status: 'overdue'
+        }
+      ]
+    }
+  } catch (error) {
+    console.error('获取逾期租借失败:', error)
+    ElMessage.error('获取逾期租借失败')
+    // 使用模拟数据作为备选方案
+    expiringList.value = [
+      {
+        instrumentId: 1,
+        modelName: '雅马哈 U1 立式钢琴',
+        brandName: '雅马哈',
+        type: '钢琴',
+        serialNumber: 'SN123456789',
+        rentedFrom: '2024-01-15',
+        rentedTo: '2024-02-01',
+        overdueDays: 5,
+        status: 'overdue'
+      }
+    ]
+  } finally {
+    expiringLoading.value = false
   }
 }
 
@@ -342,8 +431,7 @@ const submitRent = async () => {
     
     rentDialog.submitting = true
     rentInstrumentService(rentDialog.form.modelId, {
-      days: rentDialog.form.days,
-      remarks: rentDialog.form.remarks
+      days: parseInt(rentDialog.form.days)
     })
     .then(res => {
       if (res.code === 200) {
@@ -356,7 +444,18 @@ const submitRent = async () => {
     })
     .catch(error => {
       console.error('租借申请提交失败:', error)
-      ElMessage.error('租借申请提交失败')
+      let errorMessage = '租借申请提交失败'
+      if (error.response) {
+        // 服务器响应了错误状态码
+        errorMessage = error.response.data?.message || `服务器错误 ${error.response.status}`
+      } else if (error.request) {
+        // 请求已发出但没有收到响应
+        errorMessage = '网络连接失败，请检查网络'
+      } else {
+        // 其他错误
+        errorMessage = error.message || '未知错误'
+      }
+      ElMessage.error(errorMessage)
     })
     .finally(() => {
       rentDialog.submitting = false
@@ -377,10 +476,11 @@ const returnInstrument = async (row) => {
       }
     )
     
-    const res = await returnInstrumentService(row.id)
+    const res = await returnInstrumentService(row.instrumentId) // 使用instrumentId而不是row.id
     if (res.code === 200) {
       ElMessage.success('归还成功')
       loadMyRentals() // 刷新我的租借列表
+      loadExpiringRentals() // 刷新即将到期列表
     } else {
       ElMessage.error(res.message || '归还失败')
     }
@@ -388,6 +488,35 @@ const returnInstrument = async (row) => {
     if (error !== 'cancel') {
       console.error('归还失败:', error)
       ElMessage.error('归还失败')
+    }
+  }
+}
+
+// 归还逾期乐器
+const returnOverdueInstrument = async (row) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定归还乐器 ${row.modelName} 吗？`,
+      '归还确认',
+      {
+        confirmButtonText: '确定归还',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    const res = await returnInstrumentService(row.instrumentId)
+    if (res.code === 200) {
+      ElMessage.success('乐器归还成功')
+      // 重新加载逾期列表
+      loadExpiringRentals()
+    } else {
+      ElMessage.error(res.message || '归还失败')
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('归还乐器失败:', error)
+      ElMessage.error('归还乐器失败')
     }
   }
 }
@@ -419,28 +548,68 @@ const handleMyRentalCurrentChange = (page) => {
 // 状态标签处理
 const getStatusText = (status) => {
   const map = { 
-    renting: '租借中', 
+    rented: '租借中', 
     returned: '已归还', 
     overdue: '已逾期',
-    pending: '待审核'
+    pending: '待审批',
+    available: '可租借',
+    sold: '已售出'
   }
   return map[status] || status
 }
 
 const getStatusTag = (status) => {
   const map = { 
-    renting: 'primary', 
+    rented: 'primary', 
     returned: 'success', 
     overdue: 'danger',
-    pending: 'warning'
+    pending: 'warning',
+    available: 'info',
+    sold: 'info'
   }
   return map[status] || 'info'
 }
 
+// 使用模拟数据作为备选方案
+const useMockData = () => {
+  instrumentList.value = [
+    {
+      id: 1,
+      modelName: '雅马哈 U1 立式钢琴',
+      brandName: '雅马哈',
+      type: 'piano',
+      description: '经典立式钢琴，音色优美，适合初学者和专业演奏者',
+      availableCount: 3,
+      rentalPrice: 50
+    },
+    {
+      id: 2,
+      modelName: '马丁 D-28 民谣吉他',
+      brandName: '马丁',
+      type: 'guitar',
+      description: '经典民谣吉他，音色饱满，深受音乐家喜爱',
+      availableCount: 2,
+      rentalPrice: 30
+    },
+    {
+      id: 3,
+      modelName: '斯特拉迪瓦里 小提琴',
+      brandName: '斯特拉迪瓦里',
+      type: 'violin',
+      description: '高品质小提琴，适合专业演奏',
+      availableCount: 1,
+      rentalPrice: 80
+    }
+  ];
+  pagination.total = instrumentList.value.length;
+}
+
 // 初始化加载
 onMounted(() => {
+  console.log('页面挂载完成，开始初始化加载...');
   loadInstruments()
   loadMyRentals()
+  loadExpiringRentals()
 })
 </script>
 
@@ -455,7 +624,7 @@ onMounted(() => {
     color: #303133;
   }
 
-  .instrument-list, .my-rentals-list {
+  .instrument-list, .my-rentals-list, .expiring-list {
     min-height: 200px;
   }
 

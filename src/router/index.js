@@ -48,11 +48,13 @@ const router = createRouter({
         { path: '/operation/salaryList', component: () => import('@/views/admin/operation-manage/salaryList.vue') },
         { path: '/music/rent', component: () => import('@/views/admin/music-manage/instrumentRentalList.vue') },
         { path: '/music/room/list', component: () => import('@/views/admin/music-manage/roomList.vue') },
+        { path: '/music/room', redirect: '/music/room/list' }, // 添加重定向避免警告
         { path: '/music/room/pendingList', component: () => import('@/views/admin/music-manage/PendingReservationList.vue') },
         { path: '/music/instrument/list', component: () => import('@/views/admin/music-manage/instrumentList.vue') },
         { path: '/music/instrument/batch', component: () => import('@/views/admin/music-manage/instrumentBatch.vue') },
-        { path: '/music/rented', component: () => import('@/views/admin/music-manage/RentedInstrumentsList.vue') },
-        { path: '/music/sold', component: () => import('@/views/admin/music-manage/SoldInstrumentsList.vue') },
+        { path: '/music/rented', component: () => import('@/views/admin/music-manage/instrumentRentalManage.vue') },
+        { path: '/music/sold', component: () => import('@/views/admin/music-manage/instrumentRentalManage.vue') },
+        { path: '/music/rental/manage', component: () => import('@/views/admin/music-manage/instrumentRentalManage.vue') },
         { path: '/announcement/manage', component: () => import('@/views/admin/announcement-manage/announcementList.vue') },
         { path: '/evaluation/list', component: () => import('@/views/admin/evaluation-manage/evaluationList.vue') },
         { path: '/evaluation/rank', component: () => import('@/views/admin/evaluation-manage/rankingList.vue') },
@@ -74,6 +76,7 @@ const router = createRouter({
         { path: '/student/announcement', component: () => import('@/views/student/announcement.vue') },
         { path: '/student/rent', component: () => import('@/views/student/instrumentRent.vue') },
         { path: '/student/sold', component: () => import('@/views/student/instrumentSold.vue') },
+        { path: '/student/instrument-rental', component: () => import('@/views/student/instrument-rental.vue') },
         // 公共页面路由
         { path: '/user/profile', component: () => import('@/views/common/userProfile.vue') },
         { path: '/user/avatar', component: () => import('@/views/common/userAvatar.vue') },

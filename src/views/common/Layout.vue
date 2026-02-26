@@ -149,7 +149,20 @@ onMounted(async () => {
               </el-menu-item>
             </el-sub-menu>
 
-
+            <el-sub-menu index="/evaluation">
+              <template #title>
+                <el-icon><Calendar /></el-icon>
+                <span>教评管理</span>
+              </template>
+              <el-menu-item index="/evaluation/list">
+                <el-icon><Calendar /></el-icon>
+                <span>教评列表</span>
+              </el-menu-item>
+              <el-menu-item index="/evaluation/rank">
+                <el-icon><EditPen /></el-icon>
+                <span>评分排行榜</span>
+              </el-menu-item>
+            </el-sub-menu>
 
             <el-sub-menu index="/instrument">
               <template #title>

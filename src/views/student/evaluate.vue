@@ -30,16 +30,6 @@
             placeholder="请输入您对教师的评价"
           />
         </el-form-item>
-        <el-form-item label="关联课节" prop="lessonId">
-          <el-select v-model="form.lessonId" placeholder="可选择关联的具体课节（可选）" clearable filterable style="width: 300px">
-            <el-option
-              v-for="lesson in lessonList"
-              :key="lesson.id"
-              :label="`${lesson.name} - ${formatDateTime(lesson.startTime)}`"
-              :value="lesson.id"
-            />
-          </el-select>
-        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSubmit" :loading="submitting">提交评价</el-button>
           <el-button @click="handleReset">重置</el-button>
@@ -54,14 +44,12 @@ import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { submitTeacherRatingService } from '@/api/student/student'
 import { getAllTeachersService } from '@/api/admin/operation'
-import { getStudentUpcomingCourseListService } from '@/api/student/student'
 
 const formRef = ref()
 const form = ref({
   teacherId: null,
   stars: 0,
-  content: '',
-  lessonId: null
+  content: ''
 })
 
 const rules = {
@@ -72,22 +60,16 @@ const rules = {
 
 const submitting = ref(false)
 const teacherList = ref([])
-const lessonList = ref([])
 
 const handleSubmit = async () => {
   await formRef.value?.validate()
   submitting.value = true
   try {
-    //构造符合接口文档要求的数据格式
+    // 构造符合接口文档要求的数据格式（不包含lessonId）
     const requestData = {
       teacherId: form.value.teacherId,
       stars: form.value.stars,
       content: form.value.content
-    }
-    
-    // 如果选择了关联课节，则添加lessonId
-    if (form.value.lessonId) {
-      requestData.lessonId = form.value.lessonId
     }
     
     const res = await submitTeacherRatingService(requestData)
@@ -108,8 +90,7 @@ const handleReset = () => {
   form.value = {
     teacherId: null,
     stars: 0,
-    content: '',
-    lessonId: null
+    content: ''
   }
   formRef.value?.resetFields()
 }
@@ -144,50 +125,8 @@ const loadTeacherList = async () => {
   }
 }
 
-const loadLessonList = async () => {
-  try {
-    console.log('开始加载课节列表...')
-    const res = await getStudentUpcomingCourseListService()
-    console.log('课节列表API响应:', res)
-    if (res.code === 200) {
-      lessonList.value = res.data?.records || res.data || []
-      console.log('课节列表数据:', lessonList.value)
-    } else {
-      console.error('获取课节列表失败:', res.message)
-      // 使用模拟数据作为兜底
-      lessonList.value = [
-        { id: 1, name: '钢琴基础课', startTime: '2024-01-15T10:00:00' },
-        { id: 2, name: '小提琴进阶课', startTime: '2024-01-15T14:00:00' }
-      ]
-      console.log('使用模拟课节数据:', lessonList.value)
-    }
-  } catch (err) {
-    console.error('获取课节列表失败', err)
-    // 使用模拟数据作为兜底
-    lessonList.value = [
-      { id: 1, name: '钢琴基础课', startTime: '2024-01-15T10:00:00' },
-      { id: 2, name: '小提琴进阶课', startTime: '2024-01-15T14:00:00' }
-    ]
-    console.log('使用模拟课节数据:', lessonList.value)
-  }
-}
-
-const formatDateTime = (str) => {
-  if (!str) return ''
-  const date = new Date(str)
-  if (isNaN(date.getTime())) return str
-  return date.toLocaleString('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  }).replace(/\//g, '-')
-}
-
 onMounted(() => {
   loadTeacherList()
-  loadLessonList()
 })
 </script>
 

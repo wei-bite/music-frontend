@@ -54,6 +54,8 @@ const router = createRouter({
         { path: '/music/rented', component: () => import('@/views/admin/music-manage/RentedInstrumentsList.vue') },
         { path: '/music/sold', component: () => import('@/views/admin/music-manage/SoldInstrumentsList.vue') },
         { path: '/announcement/manage', component: () => import('@/views/admin/announcement-manage/announcementList.vue') },
+        { path: '/evaluation/list', component: () => import('@/views/admin/evaluation-manage/evaluationList.vue') },
+        { path: '/evaluation/rank', component: () => import('@/views/admin/evaluation-manage/rankingList.vue') },
         // 老师页面路由
         { path: '/teacher/schedule', component: () => import('@/views/teacher/schedule-my.vue') },
         { path: '/teacher/attendance', component: () => import('@/views/teacher/attendance.vue') },

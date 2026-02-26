@@ -34,5 +34,6 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '') // 可选：去掉 /api 前缀
       }
     }
-  }
+  },
+  base: '/music-frontend/'
 })

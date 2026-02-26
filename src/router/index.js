@@ -18,33 +18,67 @@ const router = createRouter({
         { path: '/user1/detail', props: true, component: () => import('@/views/admin/user-manage/userDetail.vue') },
         { path: '/user1/list', component: () => import('@/views/admin/user-manage/userListManage.vue') },
         { path: '/user1/reset-password', component: () => import('@/views/admin/user-manage/userResetPassword.vue') },
-        { path: '/schedule', component: () => import('@/views/admin/schedule-manage/schedule.vue') },
-        { path: '/course', component: () => import('@/views/admin/course-manage/course.vue') },
-        { path: '/operation/income', component: () => import('@/views/admin/operation-manage/income.vue') },
-        { path: '/operation/salary', component: () => import('@/views/admin/operation-manage/salary.vue') },
-        { path: '/music/rent', component: () => import('@/views/admin/music-manage/music-rent.vue') },
-        { path: '/music/room', component: () => import('@/views/admin/music-manage/room.vue') },
-        { path: '/announcement/create', component: () => import('@/views/admin/announcement-manage/create.vue') },
-        { path: '/announcement/manage', component: () => import('@/views/admin/announcement-manage/manage.vue') },
+        {
+          path: '/schedule/list',
+          component: () => import('@/views/admin/schedule-manage/scheduleList.vue')
+        },
+        {
+          path: '/schedule/detail/:id',
+          name: 'ScheduleDetail',
+          component: () => import('@/views/admin/schedule-manage/scheduleDetail.vue'),
+          props: true
+        },
+        {
+          path: '/schedule/form',
+          name: 'ScheduleForm',
+          component: () => import('@/views/admin/schedule-manage/scheduleForm.vue')
+          // 通过 query.mode 区分 create/edit
+        },
+        {
+          path: '/schedule/batch',
+          name: 'BatchScheduleForm',
+          component: () => import('@/views/admin/schedule-manage/scheduleBatch.vue')
+          // 独立批量页面
+        },
+        { path: '/course/list', component: () => import('@/views/admin/course-manage/courseListManage.vue') },
+        { path: '/course/detail', component: () => import('@/views/admin/course-manage/courseDetail.vue') },
+        { path: '/course/recover', component: () => import('@/views/admin/course-manage/courseRecover.vue') },
+        { path: '/operation/income', component: () => import('@/views/admin/operation-manage/FinancialList.vue') },
+        { path: '/operation/salary', component: () => import('@/views/admin/operation-manage/FinancialReport.vue') },
+        { path: '/operation/salaryList', component: () => import('@/views/admin/operation-manage/salaryList.vue') },
+        { path: '/music/rent', component: () => import('@/views/admin/music-manage/instrumentRentalList.vue') },
+        { path: '/music/room/list', component: () => import('@/views/admin/music-manage/roomList.vue') },
+        { path: '/music/room/pendingList', component: () => import('@/views/admin/music-manage/PendingReservationList.vue') },
+        { path: '/music/instrument/list', component: () => import('@/views/admin/music-manage/instrumentList.vue') },
+        { path: '/music/instrument/batch', component: () => import('@/views/admin/music-manage/instrumentBatch.vue') },
+        { path: '/music/rented', component: () => import('@/views/admin/music-manage/RentedInstrumentsList.vue') },
+        { path: '/music/sold', component: () => import('@/views/admin/music-manage/SoldInstrumentsList.vue') },
+        { path: '/announcement/manage', component: () => import('@/views/admin/announcement-manage/announcementList.vue') },
         // 老师页面路由
-        { path: '/schedule/teacher', component: () => import('@/views/teacher/schedule-my.vue') },
-        { path: '/study/attendance', component: () => import('@/views/teacher/study-record/attendance.vue') },
-        { path: '/study/score', component: () => import('@/views/teacher/study-record/score.vue') },
-        { path: '/salary', component: () => import('@/views/teacher/salary-my.vue') },
-        { path: '/leave/approve', component: () => import('@/views/teacher/leave-approve.vue') },
+        { path: '/teacher/schedule', component: () => import('@/views/teacher/schedule-my.vue') },
+        { path: '/teacher/attendance', component: () => import('@/views/teacher/attendance.vue') },
+        { path: '/teacher/score', component: () => import('@/views/teacher/score.vue') },
+        { path: '/teacher/salary', component: () => import('@/views/teacher/salary-my.vue') },
+        { path: '/teacher/leave', component: () => import('@/views/teacher/leave-approve.vue') },
+        { path: '/teacher/reserve', component: () => import('@/views/teacher/reserve.vue') },
+        { path: '/teacher/announcement', component: () => import('@/views/teacher/announcement.vue') },
 
         //学生页面路由
-        { path: '/leave/apply', component: () => import('@/views/student/leave-approve.vue') },
-        { path: '/schedule/student', component: () => import('@/views/student/schedule-my.vue') },
-        { path: '/music-rent', component: () => import('@/views/student/music-rent.vue') },
-        { path: '/evaluate', component: () => import('@/views/student/evaluate.vue') },
-
+        { path: '/student/leave', component: () => import('@/views/student/leave-approve.vue') },
+        { path: '/student/schedule', component: () => import('@/views/student/schedule-my.vue') },
+        { path: '/student/exam', component: () => import('@/views/student/exam-scores.vue') },
+        { path: '/student/evaluate', component: () => import('@/views/student/evaluate.vue') },
+        { path: '/student/reserve', component: () => import('@/views/student/reserve.vue') },
+        { path: '/student/announcement', component: () => import('@/views/student/announcement.vue') },
+        { path: '/student/rent', component: () => import('@/views/student/instrumentRent.vue') },
+        { path: '/student/sold', component: () => import('@/views/student/instrumentSold.vue') },
         // 公共页面路由
-        { path: '/reserve', component: () => import('@/views/teacher/reserve.vue') },
-        { path: '/announcement/view', component: () => import('@/views/teacher/announcement.vue') },
         { path: '/user/profile', component: () => import('@/views/common/userProfile.vue') },
         { path: '/user/avatar', component: () => import('@/views/common/userAvatar.vue') },
         { path: '/user/password', component: () => import('@/views/common/userPassword.vue') },
+        // 为了兼容不同角色的访问需求，保留特定页面路由
+        { path: '/common/reserve', component: () => import('@/views/student/reserve.vue') },
+        { path: '/common/announcement', component: () => import('@/views/student/announcement.vue') },
       ]
     }
 

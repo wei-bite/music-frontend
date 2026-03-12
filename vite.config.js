@@ -10,6 +10,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/music-frontend/',
   plugins: [
     vue(),
     vueDevTools(),
@@ -39,6 +40,5 @@ export default defineConfig({
         changeOrigin: true
       }
     }
-  },
-  base: '/music-frontend/'
+  }
 })

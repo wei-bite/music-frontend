@@ -3,7 +3,7 @@ name: Deploy Vite to GitHub Pages
 on:
   push:
     branches:
-      - main  # ⚠️ 如果你的主分支叫 master，请改成 master
+      - main
 
 permissions:
   contents: read
@@ -21,10 +21,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build project
         run: npm run build

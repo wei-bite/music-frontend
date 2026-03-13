@@ -24,10 +24,10 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm ci
+        run: npx pnpm install
 
       - name: Build project
-        run: npm run build
+        run: npx pnpm build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

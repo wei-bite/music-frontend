@@ -96,7 +96,6 @@ MIT License
 
 如有问题或建议，请通过以下方式联系：
 
-- Email: [你的邮箱]
 - GitHub Issues: [提交 Issue](https://github.com/wei-bite/music-frontend/issues)
 
 ## 🙏 致谢
